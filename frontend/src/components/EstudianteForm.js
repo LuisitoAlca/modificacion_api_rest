@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axiosInstance from '../services/axiosConfig';
-const EstudianteForm = ({ setEstudiantes }) => {  
+const EstudianteForm = ({ setEstudiantes, estudianteEditar, setEstudianteEditar, estudiantes }) => {  
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [edad, setEdad] = useState('');
   const [semestre, setSemestre] = useState('');
   const [estudia, setEstudia] = useState(true);  
 
+  useEffect(()=>{
+    if (estudianteEditar){
+      setNombre(estudianteEditar.nombre);
+      setApellido(estudianteEditar.apellido);
+      setEdad(estudianteEditar.edad);
+      setSemestre(estudianteEditar.semestre);
+      setEstudia(estudianteEditar.estudia);
+    } else{
+      setNombre('');
+      setApellido('');
+      setEdad('');
+      setSemestre('');
+      setEstudia(true);
+    }
+
+  }, [estudianteEditar]);
   const handleSubmit = async (e) => {
     e.preventDefault();  
 
@@ -19,12 +35,21 @@ const EstudianteForm = ({ setEstudiantes }) => {
     };
 
     try {
-      const response = await axiosInstance.post('estudiantes/', newEstudiante);  // Realiza el POST a la API
-      console.log('Estudiante agregado:', response.data);  // Verifica la respuesta
+      if(estudianteEditar){
+        const response=await axiosInstance.put(`estudiantes/${estudianteEditar.id}/`,newEstudiante);
+        setEstudiantes(estudiantes.map (est =>
+          est.id === estudianteEditar.id ? response.data : est
+        ));
+        setEstudianteEditar(null);
 
-   
+      }else{
+        const response = await axiosInstance.post('estudiantes/', newEstudiante);  // Realiza el POST a la API
+      console.log('Estudiante agregado:', response.data);  // Verifica la respuesta
       setEstudiantes(prevState => [...prevState, response.data]);  // Actualiza la lista de estudiantes
 
+
+      }
+      
       // Limpiar los campos después de enviar
       setNombre('');
       setApellido('');
@@ -85,7 +110,10 @@ const EstudianteForm = ({ setEstudiantes }) => {
             onChange={() => setEstudia(!estudia)}  // Cambia el valor de 'estudia' al hacer clic
           />
         </div>
-        <button type="submit">Agregar Estudiante</button>
+        <button type="submit">{estudianteEditar ? 'Guardar cambios' : 'Agregar Estudiante'}</button>
+        {estudianteEditar &&(
+          <button type='button' onClick={()=> setEstudianteEditar(null)}style={{marginLeft:'10px'}}>cancelar</button>
+        )}
       </form>
     </div>
   );
