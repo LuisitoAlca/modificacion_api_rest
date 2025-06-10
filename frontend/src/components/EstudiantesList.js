@@ -4,6 +4,7 @@ import EstudianteForm from './EstudianteForm'; // Importamos el formulario para 
 
 const EstudiantesList = () => {
   const [estudiantes, setEstudiantes] = useState([]);
+  const [estudianteEditar, setEstudianteEditar] = useState(null);
 
   // Cargar la lista de estudiantes al cargar el componente
   useEffect(() => {
@@ -33,7 +34,12 @@ const EstudiantesList = () => {
   return (
     <div>
       {/* Solo renderizamos el formulario una vez */}
-     {<EstudianteForm setEstudiantes={setEstudiantes} /> }
+     {<EstudianteForm 
+     setEstudiantes={setEstudiantes} 
+     estudianteEditar={estudianteEditar}
+     setEstudianteEditar={setEstudianteEditar}
+     estudiantes={estudiantes}
+     /> }
 
       <h2>Lista de Estudiantes</h2>
       <table>
@@ -56,7 +62,10 @@ const EstudiantesList = () => {
               <td>{estudiante.semestre}</td>
               <td>{estudiante.estudia ? 'Sí' : 'No'}</td>
               <td>
+                <button onClick={() => setEstudianteEditar(estudiante)}style={{marginRight:'10px'}}>Editar</button>
+                
                 <button onClick={() => deleteEstudiante(estudiante.id)}>Eliminar</button>
+                
               </td>
             </tr>
           ))}
