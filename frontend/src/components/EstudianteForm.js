@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../services/axiosConfig';
+import { toast } from 'react-hot-toast';
+
 const EstudianteForm = ({ setEstudiantes, estudianteEditar, setEstudianteEditar, estudiantes }) => {  
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
@@ -21,15 +23,15 @@ const EstudianteForm = ({ setEstudiantes, estudianteEditar, setEstudianteEditar,
       setSemestre('');
       setEstudia(true);
     }
-
   }, [estudianteEditar]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();  
 
     const newEstudiante = {
       nombre,
       apellido,
-      edad: parseInt(edad),  // Convertimos edad a número
+      edad: parseInt(edad),
       semestre,
       estudia,
     };
@@ -41,79 +43,98 @@ const EstudianteForm = ({ setEstudiantes, estudianteEditar, setEstudianteEditar,
           est.id === estudianteEditar.id ? response.data : est
         ));
         setEstudianteEditar(null);
-
+        toast.success('Estudiante Actualizado');
       }else{
-        const response = await axiosInstance.post('estudiantes/', newEstudiante);  // Realiza el POST a la API
-      console.log('Estudiante agregado:', response.data);  // Verifica la respuesta
-      setEstudiantes(prevState => [...prevState, response.data]);  // Actualiza la lista de estudiantes
-
-
+        const response = await axiosInstance.post('estudiantes/', newEstudiante);
+        setEstudiantes(prevState => [...prevState, response.data]);
+        toast.success('Estudiante Registrado');
       }
-      
-      // Limpiar los campos después de enviar
       setNombre('');
       setApellido('');
       setEdad('');
       setSemestre('');
-      setEstudia(true);  // Restablecer la casilla de "Está Estudiando"
+      setEstudia(true);
     } catch (error) {
       console.error('Error al agregar estudiante', error.response || error.message);
-      alert("Hubo un error al agregar el estudiante. Intenta nuevamente.");
+      toast.error("Hubo un error al agregar el estudiante. Intenta nuevamente.");
     }
   };
 
   return (
-    <div>
-      <h2>Agregar Estudiante</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold text-purple-700 mb-4 text-center">
+        {estudianteEditar ? 'Editar Estudiante' : 'Agregar Estudiante'}
+      </h2>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label>Nombre:</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
           <input
             type="text"
             value={nombre}
-            onChange={(e) => setNombre(e.target.value)}  // Actualiza el estado de 'nombre'
+            onChange={(e) => setNombre(e.target.value)}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
-          <label>Apellido:</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Apellido:</label>
           <input
             type="text"
             value={apellido}
-            onChange={(e) => setApellido(e.target.value)}  // Actualiza el estado de 'apellido'
+            onChange={(e) => setApellido(e.target.value)}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
-          <label>Edad:</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Edad:</label>
           <input
             type="number"
             value={edad}
-            onChange={(e) => setEdad(e.target.value)}  // Actualiza el estado de 'edad'
+            onChange={(e) => setEdad(e.target.value)}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
-          <label>Semestre:</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Semestre:</label>
           <input
             type="text"
             value={semestre}
-            onChange={(e) => setSemestre(e.target.value)}  // Actualiza el estado de 'semestre'
+            onChange={(e) => setSemestre(e.target.value)}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
-        <div>
-          <label>Está Estudiando?</label>
+        <div className="flex items-center col-span-1 md:col-span-2 mt-2">
           <input
             type="checkbox"
             checked={estudia}
-            onChange={() => setEstudia(!estudia)}  // Cambia el valor de 'estudia' al hacer clic
+            onChange={() => setEstudia(!estudia)}
+            className="mr-2 accent-purple-500"
+            id="estudia"
           />
+          <label htmlFor="estudia" className="text-sm font-medium text-gray-700 select-none">
+            Está Estudiando
+          </label>
         </div>
-        <button type="submit">{estudianteEditar ? 'Guardar cambios' : 'Agregar Estudiante'}</button>
-        {estudianteEditar &&(
-          <button type='button' onClick={()=> setEstudianteEditar(null)}style={{marginLeft:'10px'}}>cancelar</button>
-        )}
+        <div className="col-span-1 md:col-span-2 flex gap-3 mt-2">
+          <button
+            type="submit"
+            className="bg-purple-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition-colors duration-200 font-semibold"
+          >
+            {estudianteEditar ? 'Guardar cambios' : 'Agregar Estudiante'}
+          </button>
+          {estudianteEditar && (
+            <button
+              type="button"
+              onClick={() => setEstudianteEditar(null)}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded shadow transition-colors duration-200 font-semibold"
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
